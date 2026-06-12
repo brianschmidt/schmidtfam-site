@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>schmidtfam.co</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --paper:#f5efe3; --ink:#23201a; --soft:#8a8170; --red:#b93a26; --rule:rgba(35,32,26,.5); }
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  background:var(--paper); color:var(--ink);
+  font-family:"Fraunces", Georgia, serif;
+  min-height:100svh; display:grid; place-items:center;
+  -webkit-font-smoothing:antialiased;
+}
+body::before {
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+main { text-align:center; padding:24px; }
+.rules { border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:5px 0; }
+.inner { border-top:3px double var(--rule); border-bottom:3px double var(--rule); padding:44px 56px 50px; }
+.eyebrow { font-family:"IBM Plex Mono",monospace; font-size:.62rem; letter-spacing:.32em; text-transform:uppercase; color:var(--soft); margin-bottom:18px; }
+h1 { font-style:italic; font-weight:340; font-size:clamp(2.6rem,8vw,4.4rem); letter-spacing:-.02em; line-height:1; font-variation-settings:"opsz" 144; }
+h1 b { font-style:normal; font-weight:900; color:var(--red); }
+nav { margin-top:30px; display:flex; gap:14px; justify-content:center; }
+nav a {
+  font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--ink); text-decoration:none;
+  border:1px solid var(--rule); border-radius:3px; padding:10px 18px;
+  transition:all .18s ease;
+}
+nav a:hover { background:var(--ink); color:var(--paper); }
+footer { margin-top:22px; font-family:"IBM Plex Mono",monospace; font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--soft); }
+</style>
+</head>
+<body>
+<main>
+  <div class="rules"><div class="inner">
+    <p class="eyebrow">Est. somewhere between diapers and diplomas</p>
+    <h1>The Schmidt <b>Family</b></h1>
+    <nav>
+      <a href="/sofia/">Sofia</a>
+    </nav>
+  </div></div>
+  <footer>Private family pages · passphrase required</footer>
+</main>
+</body>
+</html>
