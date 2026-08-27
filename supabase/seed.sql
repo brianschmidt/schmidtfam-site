@@ -1,0 +1,3 @@
+-- Production team configuration is created by the initial migration so a fresh
+-- local reset matches the deployed project. Add disposable development fixtures
+-- here when the API and calendar-sync tests are introduced.

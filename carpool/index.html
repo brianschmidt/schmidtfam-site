@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#102a43">
+  <title>Team Carpool Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@80..120,500..800&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#schedule">Skip to schedule</a>
+
+  <header class="site-header">
+    <a class="team-mark" href="#" aria-label="Team Carpool Board home">
+      <img class="team-mark__logo" src="./assets/blue-puma-logo.png" alt="" width="48" height="48">
+      <span>
+        <strong>Team Carpool</strong>
+        <small>Shared parent schedule</small>
+      </span>
+    </a>
+    <button class="calendar-link" type="button" data-calendar-open>
+      <span class="calendar-link__icon" aria-hidden="true">31</span>
+      Add to Google Calendar
+    </button>
+  </header>
+
+  <main>
+    <section class="page-intro" aria-labelledby="page-title">
+      <p class="eyebrow">Blue Pumas · Fall 2026</p>
+      <h1 id="page-title">Carpool board</h1>
+      <p>Pick an open ride and add your name. That’s it.</p>
+    </section>
+
+    <details class="address-book" id="address-book">
+      <summary>
+        <span class="address-book__pin" aria-hidden="true"></span>
+        <span class="address-book__summary-copy">
+          <strong>Pickup addresses</strong>
+          <small>Add each child’s home once for easy carpool reference.</small>
+        </span>
+        <span class="address-book__count" id="address-count">0 saved</span>
+        <span class="address-book__chevron" aria-hidden="true">⌄</span>
+      </summary>
+
+      <div class="address-book__body">
+        <form class="address-form" id="address-form">
+          <div class="address-form__heading">
+            <p class="eyebrow" id="address-form-eyebrow">Add a pickup</p>
+            <h2 id="address-form-title">Save an address</h2>
+          </div>
+          <label for="child-name">Child or family name</label>
+          <input id="child-name" name="childName" type="text" placeholder="e.g. Lara Schmidt" maxlength="60" required>
+          <label for="pickup-address">Pickup address</label>
+          <input id="pickup-address" name="pickupAddress" type="text" autocomplete="street-address" placeholder="Street, city, state, ZIP" maxlength="180" required>
+          <p class="address-form__privacy">Shared with everyone who has the private team link. Only this browser can edit entries it creates.</p>
+          <div class="address-form__actions">
+            <button class="button button--primary button--compact" type="submit" id="save-address">Save address</button>
+            <button class="text-button" type="button" id="cancel-address-edit" hidden>Cancel editing</button>
+          </div>
+        </form>
+
+        <section class="address-directory" aria-labelledby="address-directory-title">
+          <div class="address-directory__heading">
+            <p class="eyebrow">Team reference</p>
+            <h2 id="address-directory-title">Saved pickups</h2>
+          </div>
+          <div class="address-list" id="address-list" aria-live="polite"></div>
+        </section>
+      </div>
+    </details>
+
+    <section class="schedule-board" id="schedule" aria-labelledby="schedule-title">
+      <div class="board-heading">
+        <div>
+          <h2 id="schedule-title">Full team schedule</h2>
+          <p id="schedule-count">Upcoming practices and games from the LMFC calendar.</p>
+        </div>
+        <span class="schedule-source" id="schedule-today">Today</span>
+      </div>
+
+      <div class="schedule-header" aria-hidden="true">
+        <span>Date &amp; event</span>
+        <span><i class="direction direction--out"></i> To event</span>
+        <span><i class="direction direction--back"></i> Home</span>
+      </div>
+
+      <div class="schedule-list" id="schedule-list" aria-live="polite"></div>
+
+      <div class="board-footer">
+        <p><span class="status-dot"></span> Yellow slots still need a driver.</p>
+        <button class="text-button" type="button" data-calendar-open>Subscribe to the full schedule</button>
+      </div>
+    </section>
+
+    <p class="privacy-note">Private team link · Please share with parents only</p>
+  </main>
+
+  <dialog class="dialog" id="signup-dialog" aria-labelledby="signup-title">
+    <form method="dialog" id="signup-form">
+      <button class="dialog__close" type="button" data-dialog-close aria-label="Close">×</button>
+      <p class="eyebrow" id="dialog-eyebrow">Volunteer to drive</p>
+      <h2 id="signup-title">Add your name</h2>
+      <div class="trip-recap" id="trip-recap"></div>
+      <label for="driver-name">Your name</label>
+      <input id="driver-name" name="driverName" type="text" autocomplete="name" placeholder="e.g. Brian Schmidt" required maxlength="60">
+      <p class="field-help">Shared with everyone who has the team link. Only this browser can change or cancel your signup.</p>
+      <div class="dialog__actions">
+        <button class="button button--primary" type="submit" value="default" id="save-signup">Sign up to drive</button>
+        <button class="text-button text-button--danger" type="button" id="cancel-signup" hidden>Cancel my signup</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog--comments" id="comment-dialog" aria-labelledby="comment-dialog-title">
+    <form method="dialog" id="comment-form">
+      <button class="dialog__close" type="button" data-dialog-close aria-label="Close">×</button>
+      <p class="eyebrow">Segment notes</p>
+      <h2 id="comment-dialog-title">Comments</h2>
+      <div class="trip-recap" id="comment-trip-recap"></div>
+      <section class="comment-thread" id="comment-thread" aria-label="Comment thread" aria-live="polite"></section>
+      <div class="comment-composer">
+        <p class="comment-composer__title">Add to the thread</p>
+        <label for="commenter-name">Your name</label>
+        <input id="commenter-name" name="commenterName" type="text" autocomplete="name" placeholder="e.g. Brian Schmidt" required maxlength="60">
+        <label for="comment-body">Comment</label>
+        <textarea id="comment-body" name="commentBody" rows="4" placeholder="e.g. Lara will miss this practice." required maxlength="500"></textarea>
+        <p class="field-help">Shared with everyone who has the team link. Only this browser can edit or remove your comment.</p>
+        <div class="dialog__actions">
+          <button class="button button--primary" type="submit" value="default" id="save-comment">Post comment</button>
+          <button class="text-button" type="button" id="cancel-comment-edit" hidden>Cancel edit</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog--calendar" id="calendar-dialog" aria-labelledby="calendar-dialog-title">
+    <form method="dialog">
+      <button class="dialog__close" type="button" data-dialog-close aria-label="Close">×</button>
+      <span class="calendar-dialog__icon" aria-hidden="true">31</span>
+      <p class="eyebrow">Shared team calendar</p>
+      <h2 id="calendar-dialog-title">Add every ride to Google Calendar.</h2>
+      <p>In Google Calendar, choose “From URL” and paste this private subscription address. It updates as drivers sign up.</p>
+      <div class="feed-url">
+        <code id="feed-url">Loading calendar address…</code>
+        <button type="button" id="copy-feed" disabled>Copy</button>
+      </div>
+      <button class="button button--dark" value="cancel">Done</button>
+      <button class="text-button dialog__download" type="button" id="download-calendar" disabled>Open calendar feed</button>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
