@@ -182,7 +182,9 @@ Deno.serve(async (request: Request) => {
           else source_event.title
         end as title,
         case
-          when source_event.title ilike 'Practice:%' then 'Practice'
+          when source_event.title ilike 'Practice:%'
+            or source_event.title ilike 'Pre-Season Camp%'
+            then 'Practice'
           else 'Game'
         end as type,
         source_event.starts_at,
@@ -233,7 +235,10 @@ Deno.serve(async (request: Request) => {
         and source_event.status <> 'cancelled'
         and source_event.removed_at is null
         and not source_event.all_day
-        and source_event.title ilike 'Practice:%'
+        and (
+          source_event.title ilike 'Practice:%'
+          or source_event.title ilike 'Pre-Season Camp%'
+        )
         and (source_event.starts_at at time zone ${access.timezone})::date >=
           (now() at time zone ${access.timezone})::date
       order by source_event.starts_at, source_event.id

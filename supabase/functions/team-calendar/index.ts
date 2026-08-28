@@ -111,7 +111,11 @@ function toIcsUtc(value: string | Date) {
 }
 
 function eventLabel(access: Record<string, any>, title: string | null) {
-  const type = title?.toLowerCase().startsWith("practice:") ? "Practice" : "Game";
+  const normalizedTitle = title?.toLowerCase() ?? "";
+  const isPractice =
+    normalizedTitle.startsWith("practice:") ||
+    normalizedTitle.startsWith("pre-season camp");
+  const type = isPractice ? "Practice" : "Game";
   return `${access.short_code} ${type}`;
 }
 
@@ -271,7 +275,10 @@ Deno.serve(async (request: Request) => {
         and source_event.status <> 'cancelled'
         and source_event.removed_at is null
         and not source_event.all_day
-        and source_event.title ilike 'Practice:%'
+        and (
+          source_event.title ilike 'Practice:%'
+          or source_event.title ilike 'Pre-Season Camp%'
+        )
         and (source_event.starts_at at time zone ${access.timezone})::date >= (now() at time zone ${access.timezone})::date
       order by source_event.starts_at, source_event.id
     `;
