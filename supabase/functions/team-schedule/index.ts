@@ -233,6 +233,7 @@ Deno.serve(async (request: Request) => {
         and source_event.status <> 'cancelled'
         and source_event.removed_at is null
         and not source_event.all_day
+        and source_event.title ilike 'Practice:%'
         and (source_event.starts_at at time zone ${access.timezone})::date >=
           (now() at time zone ${access.timezone})::date
       order by source_event.starts_at, source_event.id

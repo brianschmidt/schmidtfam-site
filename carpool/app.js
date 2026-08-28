@@ -650,8 +650,8 @@ function render(todayDate = getDateKeyInNewYork()) {
   const visibleSchedule = getVisibleSchedule(todayDate);
   scheduleToday.textContent = `Today · ${formatShortDate(todayDate)}`;
   scheduleCount.textContent = visibleSchedule.length
-    ? `${visibleSchedule.length} upcoming ${visibleSchedule.length === 1 ? "event" : "events"} from the LMFC calendar.`
-    : `No upcoming ${activeTeamName} events are currently scheduled.`;
+    ? `${visibleSchedule.length} upcoming ${visibleSchedule.length === 1 ? "practice" : "practices"} from the LMFC calendar.`
+    : `No upcoming ${activeTeamName} practices are currently scheduled.`;
 
   scheduleList.innerHTML = visibleSchedule.length ? visibleSchedule.map((event) => {
     const isToday = event.date === todayDate;
@@ -671,7 +671,7 @@ function render(todayDate = getDateKeyInNewYork()) {
         ${event.trips.map(renderSlot).join("")}
       </section>`;
     return row;
-  }).join("") : `<div class="schedule-empty"><strong>Season complete</strong><span>New ${escapeHtml(activeTeamName)} events will appear here when they are added to the LMFC calendar.</span></div>`;
+  }).join("") : `<div class="schedule-empty"><strong>Season complete</strong><span>New ${escapeHtml(activeTeamName)} practices will appear here when they are added to the LMFC calendar.</span></div>`;
 
   scheduleList.querySelectorAll("[data-signup]").forEach((button) => {
     button.addEventListener("click", () => openSignup(button.dataset.signup));
