@@ -23,7 +23,7 @@
 - [x] Remove the scoped Blue Pumas test participation data from the live board using recoverable cancellation, soft-deletion, and archival.
 - [x] Create Red Tigers web and calendar access credentials.
 - [x] Verify API isolation, calendar output, and desktop/mobile presentation.
-- [ ] Publish the tenant-aware frontend and migration source to GitHub.
+- [x] Publish the tenant-aware frontend and migration source to GitHub on `codex/red-tigers-team`.
 
 ## Design direction
 
