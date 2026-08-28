@@ -8,50 +8,18 @@ const ACTIONS_API_URL = "https://fmrgosorbzkhcssondak.supabase.co/functions/v1/t
 let teamTimezone = "America/New_York";
 let teamAccessToken = null;
 let calendarFeedUrl = null;
-
-// Reference snapshot imported from the connected calendar on August 27, 2026.
-// This is deliberately not used at runtime; the rendered schedule comes from
-// the protected API. It remains here temporarily for connector-sync comparison.
-const staticCalendarEvents = [
-  { start: "2026-09-10T15:30:00-04:00", end: "2026-09-10T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-09-13T16:15:00-04:00", end: "2026-09-13T17:45:00-04:00", title: "Blue Pumas vs Harrison Wave", location: "Harbor Island Park · Croce West" },
-  { start: "2026-09-14T15:30:00-04:00", end: "2026-09-14T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-09-17T15:30:00-04:00", end: "2026-09-17T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-09-20T10:15:00-04:00", end: "2026-09-20T11:45:00-04:00", title: "Blue Pumas vs Manhattan SC Albion G2017/18", location: "Harbor Island Park · Field 5" },
-  { start: "2026-09-21T15:30:00-04:00", end: "2026-09-21T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-09-24T15:30:00-04:00", end: "2026-09-24T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-09-27T10:30:00-04:00", end: "2026-09-27T12:00:00-04:00", title: "Blue Pumas vs John Jay FC G2017 White", location: "Harbor Island Park · Field 4" },
-  { start: "2026-09-28T15:30:00-04:00", end: "2026-09-28T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-10-01T15:30:00-04:00", end: "2026-10-01T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-10-04T11:30:00-04:00", end: "2026-10-04T13:00:00-04:00", title: "Blue Pumas at Hillcrest FC Hurricanes", location: "Rory O’Moore · Field 1" },
-  { start: "2026-10-05T15:30:00-04:00", end: "2026-10-05T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-10-08T15:30:00-04:00", end: "2026-10-08T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-10-12T15:30:00-04:00", end: "2026-10-12T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-10-15T15:30:00-04:00", end: "2026-10-15T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-10-18T15:15:00-04:00", end: "2026-10-18T16:45:00-04:00", title: "Blue Pumas at Scarsdale Rangers", location: "Crossway · Field 5" },
-  { start: "2026-10-19T15:30:00-04:00", end: "2026-10-19T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-10-22T15:30:00-04:00", end: "2026-10-22T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-10-25T12:00:00-04:00", end: "2026-10-25T13:30:00-04:00", title: "Blue Pumas vs Eastchester Legacy", location: "Harbor Island Park · Croce West" },
-  { start: "2026-10-26T15:30:00-04:00", end: "2026-10-26T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-10-29T15:30:00-04:00", end: "2026-10-29T16:45:00-04:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-11-01T12:00:00-05:00", end: "2026-11-01T13:30:00-05:00", title: "Blue Pumas vs Armonk SC Pumas", location: "Harbor Island Park · Croce East" },
-  { start: "2026-11-02T15:30:00-05:00", end: "2026-11-02T16:45:00-05:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-11-05T15:30:00-05:00", end: "2026-11-05T16:45:00-05:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-11-08T12:30:00-05:00", end: "2026-11-08T14:00:00-05:00", title: "Blue Pumas at Mahopac Stars", location: "Airport Park · Field 3" },
-  { start: "2026-11-09T15:30:00-05:00", end: "2026-11-09T16:45:00-05:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-11-12T15:30:00-05:00", end: "2026-11-12T16:45:00-05:00", title: "Practice: Blue Pumas (Harbor Island)", location: "Harbor Island" },
-  { start: "2026-11-15T14:30:00-05:00", end: "2026-11-15T16:00:00-05:00", title: "Blue Pumas at Gotham Girls Sparks", location: "Pier 40 · Rooftop" }
-];
+let activeTeamSlug = null;
+let activeTeamName = "Team";
 
 let calendarEvents = [];
 let schedule = [];
 let trips = [];
 const ownerId = getOwnerId();
-let signups = loadSignups();
+let signups = {};
 let activeTripId = null;
-let addresses = loadAddresses();
+let addresses = [];
 let activeAddressId = null;
-let commentOwnership = loadCommentOwnership();
+let commentOwnership = {};
 let activeCommentTripId = null;
 let editingCommentId = null;
 
@@ -86,9 +54,10 @@ const childName = document.querySelector("#child-name");
 const pickupAddress = document.querySelector("#pickup-address");
 const saveAddress = document.querySelector("#save-address");
 const cancelAddressEdit = document.querySelector("#cancel-address-edit");
-const pageEyebrow = document.querySelector(".page-intro .eyebrow");
-const pageTitle = document.querySelector("#page-title");
-const pageDescription = document.querySelector(".page-intro > p:last-child");
+const teamLogo = document.querySelector("#team-logo");
+const teamMark = document.querySelector(".team-mark");
+const teamMarkName = document.querySelector("#team-mark-name");
+const teamSeason = document.querySelector("#team-season");
 
 const initialToday = getDateKeyInNewYork();
 renderAddresses();
@@ -179,7 +148,7 @@ commentForm.addEventListener("submit", async (event) => {
         editToken: result.editToken,
         ownerId
       };
-      localStorage.setItem(COMMENTER_NAME_KEY, result.comment.authorName);
+      localStorage.setItem(getTeamStorageKey(COMMENTER_NAME_KEY), result.comment.authorName);
     }
     saveCommentOwnership();
     await loadTeamSchedule();
@@ -349,6 +318,12 @@ async function loadTeamSchedule() {
     }
 
     teamTimezone = payload.team.timezone || teamTimezone;
+    activeTeamSlug = payload.team.slug;
+    activeTeamName = payload.team.displayName;
+    signups = loadSignups();
+    addresses = loadAddresses();
+    commentOwnership = loadCommentOwnership();
+    applyTeamBrand(payload.team);
     calendarFeedUrl = typeof payload.calendarFeedUrl === "string" ? payload.calendarFeedUrl : null;
     const feedUrl = document.querySelector("#feed-url");
     const copyFeed = document.querySelector("#copy-feed");
@@ -399,9 +374,8 @@ async function loadTeamSchedule() {
 
     document.body.classList.remove("access-loading", "access-denied");
     document.title = `${payload.team.displayName} Carpool Board`;
-    pageEyebrow.textContent = `${payload.team.displayName} · ${payload.season.label}`;
-    pageTitle.textContent = "Carpool board";
-    pageDescription.textContent = "The schedule, driver signups, and pickup addresses are shared live with the team.";
+    teamSeason.textContent = payload.season.label;
+    teamMark.setAttribute("aria-label", `${payload.team.displayName} Carpool Board home`);
 
     const today = getDateKeyInNewYork();
     render(today);
@@ -411,6 +385,40 @@ async function loadTeamSchedule() {
       "Team schedule unavailable",
       error instanceof Error ? error.message : "Please ask the organizer for a fresh link."
     );
+  }
+}
+
+function applyTeamBrand(team) {
+  const theme = team.theme && typeof team.theme === "object" ? team.theme : {};
+  const properties = {
+    "--navy": theme.primary,
+    "--navy-deep": theme.primaryDeep,
+    "--pool": theme.accent,
+    "--pool-soft": theme.accentSoft,
+    "--yellow": theme.highlight,
+    "--yellow-soft": theme.highlightSoft,
+    "--coral": theme.calendarAccent
+  };
+
+  Object.entries(properties).forEach(([property, value]) => {
+    if (typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value)) {
+      document.documentElement.style.setProperty(property, value);
+    }
+  });
+
+  const defaultLogos = {
+    "blue-pumas": "./assets/blue-puma-logo.png",
+    "red-tigers": "./assets/red-tiger-logo.png"
+  };
+  teamLogo.src = typeof theme.logoPath === "string"
+    ? theme.logoPath
+    : (defaultLogos[team.slug] || defaultLogos["blue-pumas"]);
+  teamMarkName.textContent = team.displayName;
+  document.body.dataset.team = team.slug;
+
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta && typeof theme.primaryDeep === "string") {
+    themeMeta.content = theme.primaryDeep;
   }
 }
 
@@ -484,8 +492,6 @@ function renderLoading() {
 function renderAccessError(title, message) {
   document.body.classList.remove("access-loading");
   document.body.classList.add("access-denied");
-  pageTitle.textContent = title;
-  pageDescription.textContent = message;
   scheduleToday.textContent = "Private";
   scheduleCount.textContent = "This schedule is available only through the team’s private link.";
   scheduleList.innerHTML = `
@@ -507,19 +513,19 @@ function getOwnerId() {
 
 function loadSignups() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    return JSON.parse(localStorage.getItem(getTeamStorageKey(STORAGE_KEY))) || {};
   } catch {
     return {};
   }
 }
 
 function saveSignups() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(signups));
+  localStorage.setItem(getTeamStorageKey(STORAGE_KEY), JSON.stringify(signups));
 }
 
 function loadAddresses() {
   try {
-    const saved = JSON.parse(localStorage.getItem(ADDRESS_STORAGE_KEY));
+    const saved = JSON.parse(localStorage.getItem(getTeamStorageKey(ADDRESS_STORAGE_KEY)));
     return Array.isArray(saved) ? saved : [];
   } catch {
     return [];
@@ -527,19 +533,23 @@ function loadAddresses() {
 }
 
 function saveAddresses() {
-  localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(addresses));
+  localStorage.setItem(getTeamStorageKey(ADDRESS_STORAGE_KEY), JSON.stringify(addresses));
 }
 
 function loadCommentOwnership() {
   try {
-    return JSON.parse(localStorage.getItem(COMMENT_STORAGE_KEY)) || {};
+    return JSON.parse(localStorage.getItem(getTeamStorageKey(COMMENT_STORAGE_KEY))) || {};
   } catch {
     return {};
   }
 }
 
 function saveCommentOwnership() {
-  localStorage.setItem(COMMENT_STORAGE_KEY, JSON.stringify(commentOwnership));
+  localStorage.setItem(getTeamStorageKey(COMMENT_STORAGE_KEY), JSON.stringify(commentOwnership));
+}
+
+function getTeamStorageKey(baseKey) {
+  return activeTeamSlug ? `${baseKey}:${activeTeamSlug}` : baseKey;
 }
 
 function getOwnedComment(commentId) {
@@ -641,7 +651,7 @@ function render(todayDate = getDateKeyInNewYork()) {
   scheduleToday.textContent = `Today · ${formatShortDate(todayDate)}`;
   scheduleCount.textContent = visibleSchedule.length
     ? `${visibleSchedule.length} upcoming ${visibleSchedule.length === 1 ? "event" : "events"} from the LMFC calendar.`
-    : "No upcoming Blue Pumas events are currently scheduled.";
+    : `No upcoming ${activeTeamName} events are currently scheduled.`;
 
   scheduleList.innerHTML = visibleSchedule.length ? visibleSchedule.map((event) => {
     const isToday = event.date === todayDate;
@@ -661,7 +671,7 @@ function render(todayDate = getDateKeyInNewYork()) {
         ${event.trips.map(renderSlot).join("")}
       </section>`;
     return row;
-  }).join("") : `<div class="schedule-empty"><strong>Season complete</strong><span>New Blue Pumas events will appear here when they are added to the LMFC calendar.</span></div>`;
+  }).join("") : `<div class="schedule-empty"><strong>Season complete</strong><span>New ${escapeHtml(activeTeamName)} events will appear here when they are added to the LMFC calendar.</span></div>`;
 
   scheduleList.querySelectorAll("[data-signup]").forEach((button) => {
     button.addEventListener("click", () => openSignup(button.dataset.signup));
@@ -825,7 +835,7 @@ function resetCommentComposer() {
   editingCommentId = null;
   commentForm.reset();
   commenterName.disabled = false;
-  commenterName.value = localStorage.getItem(COMMENTER_NAME_KEY) || "";
+  commenterName.value = localStorage.getItem(getTeamStorageKey(COMMENTER_NAME_KEY)) || "";
   saveComment.textContent = "Post comment";
   cancelCommentEdit.hidden = true;
 }
