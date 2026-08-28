@@ -69,6 +69,7 @@ main {
   object-fit: contain;
   filter: drop-shadow(0 3px 0 rgba(16, 42, 67, .12));
 }
+.access-loading .team-mark__logo { visibility: hidden; }
 
 .team-mark strong,
 .team-mark small { display: block; }

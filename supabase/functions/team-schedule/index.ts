@@ -176,7 +176,11 @@ Deno.serve(async (request: Request) => {
       select
         team_event.id::text as id,
         source_event.external_event_id as source_event_id,
-        source_event.title,
+        case
+          when ${access.slug} = 'red-tigers'
+            then replace(source_event.title, '2014 Girls Premier', 'Red Tigers')
+          else source_event.title
+        end as title,
         case
           when source_event.title ilike 'Practice:%' then 'Practice'
           else 'Game'
