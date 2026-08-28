@@ -14,7 +14,7 @@
 - [x] Add the slot-label migration and parent-facing practice copy.
 - [x] Apply and deploy the backend changes.
 - [x] Verify both teams' web schedules and ICS feeds.
-- [ ] Push the feature branch for the GitHub Pages deployment.
+- [x] Push the feature branch for the GitHub Pages deployment.
 
 ## Verification target
 
