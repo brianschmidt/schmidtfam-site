@@ -24,6 +24,7 @@
 - [x] Create Red Tigers web and calendar access credentials.
 - [x] Verify API isolation, calendar output, and desktop/mobile presentation.
 - [x] Publish the tenant-aware frontend and migration source to GitHub on `codex/red-tigers-team`.
+- [x] Refine the shared header so team identity, season, and calendar access stay visible while the board title scrolls away.
 
 ## Design direction
 
@@ -39,3 +40,4 @@
 - Three Red Tigers all-day calendar placeholders are stored as `needs_review` and are intentionally excluded until they have usable times.
 - Red Tigers calendar feed: 38 events, `Red Tigers Carpool` name, and `RT` summaries.
 - Mobile and desktop previews show the Red Tiger mascot, red/plum theme, parent-facing Red Tigers event titles, and the existing responsive carpool interactions.
+- The refined header shows the logo, team name, and season together; the introductory helper sentence has been removed, and the header remains pinned above the schedule on mobile and desktop.

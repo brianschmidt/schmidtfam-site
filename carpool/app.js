@@ -54,11 +54,10 @@ const childName = document.querySelector("#child-name");
 const pickupAddress = document.querySelector("#pickup-address");
 const saveAddress = document.querySelector("#save-address");
 const cancelAddressEdit = document.querySelector("#cancel-address-edit");
-const pageEyebrow = document.querySelector(".page-intro .eyebrow");
-const pageTitle = document.querySelector("#page-title");
-const pageDescription = document.querySelector(".page-intro > p:last-child");
 const teamLogo = document.querySelector("#team-logo");
+const teamMark = document.querySelector(".team-mark");
 const teamMarkName = document.querySelector("#team-mark-name");
+const teamSeason = document.querySelector("#team-season");
 
 const initialToday = getDateKeyInNewYork();
 renderAddresses();
@@ -375,9 +374,8 @@ async function loadTeamSchedule() {
 
     document.body.classList.remove("access-loading", "access-denied");
     document.title = `${payload.team.displayName} Carpool Board`;
-    pageEyebrow.textContent = `${payload.team.displayName} · ${payload.season.label}`;
-    pageTitle.textContent = "Carpool board";
-    pageDescription.textContent = "The schedule, driver signups, and pickup addresses are shared live with the team.";
+    teamSeason.textContent = payload.season.label;
+    teamMark.setAttribute("aria-label", `${payload.team.displayName} Carpool Board home`);
 
     const today = getDateKeyInNewYork();
     render(today);
@@ -494,8 +492,6 @@ function renderLoading() {
 function renderAccessError(title, message) {
   document.body.classList.remove("access-loading");
   document.body.classList.add("access-denied");
-  pageTitle.textContent = title;
-  pageDescription.textContent = message;
   scheduleToday.textContent = "Private";
   scheduleCount.textContent = "This schedule is available only through the team’s private link.";
   scheduleList.innerHTML = `
