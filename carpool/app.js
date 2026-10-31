@@ -227,7 +227,7 @@ signupForm.addEventListener("submit", async (event) => {
   if (!name || !activeTripId) return;
   const trip = trips.find((item) => item.id === activeTripId);
   const state = getTripState(trip);
-  const editing = Boolean(state.driver && state.mine);
+  const editing = Boolean(state.driver);
 
   saveSignup.disabled = true;
   saveSignup.textContent = "Saving…";
@@ -236,7 +236,6 @@ signupForm.addEventListener("submit", async (event) => {
     const result = await runTeamAction(editing ? {
       action: "signup.update",
       signupId: state.signupId,
-      editToken: state.editToken,
       driverName: name
     } : {
       action: "signup.create",
@@ -244,12 +243,14 @@ signupForm.addEventListener("submit", async (event) => {
       driverName: name
     });
 
-    signups[activeTripId] = {
-      name: result.signup.driverName,
-      signupId: result.signup.id,
-      editToken: editing ? state.editToken : result.editToken,
-      ownerId
-    };
+    if (!editing || state.mine) {
+      signups[activeTripId] = {
+        name: result.signup.driverName,
+        signupId: result.signup.id,
+        editToken: editing ? state.editToken : result.editToken,
+        ownerId
+      };
+    }
     saveSignups();
     await loadTeamSchedule();
     signupDialog.close();
@@ -270,7 +271,7 @@ cancelSignup.addEventListener("click", async () => {
   if (!activeTripId) return;
   const trip = trips.find((item) => item.id === activeTripId);
   const state = getTripState(trip);
-  if (!state.mine) return;
+  if (!state.driver) return;
 
   cancelSignup.disabled = true;
   cancelSignup.textContent = "Canceling…";
@@ -278,8 +279,7 @@ cancelSignup.addEventListener("click", async () => {
   try {
     await runTeamAction({
       action: "signup.cancel",
-      signupId: state.signupId,
-      editToken: state.editToken
+      signupId: state.signupId
     });
     delete signups[activeTripId];
     saveSignups();
@@ -290,7 +290,7 @@ cancelSignup.addEventListener("click", async () => {
     showToast(error instanceof Error ? error.message : "The signup could not be canceled.");
   } finally {
     cancelSignup.disabled = false;
-    cancelSignup.textContent = "Cancel my signup";
+    cancelSignup.textContent = "Cancel signup";
   }
 });
 
@@ -721,7 +721,7 @@ function renderSlot(trip) {
       <span class="comment-preview__body">${escapeHtml(latestComment.body)}</span>
     </button>` : "";
   const action = state.driver
-    ? (state.mine ? `<button class="edit-button" type="button" data-signup="${trip.id}" aria-label="Edit your signup for ${trip.route}">Edit</button>` : "")
+    ? `<button class="edit-button" type="button" data-signup="${trip.id}" aria-label="Edit the signup for ${trip.route}">Edit</button>`
     : `<button class="signup-button" type="button" data-signup="${trip.id}">I can drive</button>`;
 
   return `
@@ -854,10 +854,10 @@ function openSignup(tripId) {
   activeTripId = tripId;
   const trip = trips.find((item) => item.id === tripId);
   const state = getTripState(trip);
-  const editing = Boolean(state.driver && state.mine);
+  const editing = Boolean(state.driver);
 
-  dialogEyebrow.textContent = editing ? "Your signup" : "Volunteer to drive";
-  signupTitle.textContent = editing ? "Change your name" : "Add your name";
+  dialogEyebrow.textContent = editing ? "Edit signup" : "Volunteer to drive";
+  signupTitle.textContent = editing ? "Change the driver name" : "Add your name";
   saveSignup.textContent = editing ? "Save changes" : "Sign up to drive";
   cancelSignup.hidden = !editing;
   driverName.value = editing ? state.driver : "";

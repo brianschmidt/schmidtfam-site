@@ -203,7 +203,6 @@ async function updateSignup(teamId: string, body: Record<string, unknown>) {
   if (!sql) throw new HttpError(503, "Write service is unavailable");
   const signupId = requiredId(body.signupId, "Signup");
   const driverName = requiredText(body.driverName, "Driver name", 60);
-  const editTokenHash = await sha256(requiredEditToken(body.editToken));
 
   const rows = await sql`
     update private.signups signup
@@ -211,10 +210,19 @@ async function updateSignup(teamId: string, body: Record<string, unknown>) {
     from private.carpool_slots slot
     join private.team_events team_event on team_event.id = slot.team_event_id
     join private.team_seasons season on season.id = team_event.team_season_id
+    join private.teams team on team.id = season.team_id
+    join private.source_events source_event on source_event.id = team_event.source_event_id
     where signup.id = ${signupId}
       and signup.carpool_slot_id = slot.id
       and season.team_id = ${teamId}
-      and signup.edit_token_hash = ${editTokenHash}
+      and team.active
+      and season.active
+      and slot.active
+      and team_event.visibility = 'listed'
+      and source_event.status <> 'cancelled'
+      and source_event.removed_at is null
+      and (source_event.starts_at at time zone team.timezone)::date >=
+        (now() at time zone team.timezone)::date
       and signup.cancelled_at is null
     returning
       signup.id::text as id,
@@ -223,7 +231,7 @@ async function updateSignup(teamId: string, body: Record<string, unknown>) {
   `;
 
   if (!rows[0]) {
-    throw new HttpError(403, "This browser cannot edit that signup");
+    throw new HttpError(404, "That signup is no longer available to edit");
   }
 
   return {
@@ -241,7 +249,6 @@ async function updateSignup(teamId: string, body: Record<string, unknown>) {
 async function cancelSignup(teamId: string, body: Record<string, unknown>) {
   if (!sql) throw new HttpError(503, "Write service is unavailable");
   const signupId = requiredId(body.signupId, "Signup");
-  const editTokenHash = await sha256(requiredEditToken(body.editToken));
 
   const rows = await sql`
     update private.signups signup
@@ -249,16 +256,25 @@ async function cancelSignup(teamId: string, body: Record<string, unknown>) {
     from private.carpool_slots slot
     join private.team_events team_event on team_event.id = slot.team_event_id
     join private.team_seasons season on season.id = team_event.team_season_id
+    join private.teams team on team.id = season.team_id
+    join private.source_events source_event on source_event.id = team_event.source_event_id
     where signup.id = ${signupId}
       and signup.carpool_slot_id = slot.id
       and season.team_id = ${teamId}
-      and signup.edit_token_hash = ${editTokenHash}
+      and team.active
+      and season.active
+      and slot.active
+      and team_event.visibility = 'listed'
+      and source_event.status <> 'cancelled'
+      and source_event.removed_at is null
+      and (source_event.starts_at at time zone team.timezone)::date >=
+        (now() at time zone team.timezone)::date
       and signup.cancelled_at is null
     returning signup.id::text as id
   `;
 
   if (!rows[0]) {
-    throw new HttpError(403, "This browser cannot cancel that signup");
+    throw new HttpError(404, "That signup is no longer available to cancel");
   }
 
   return { status: 200, body: { cancelled: true, signupId: rows[0].id } };
