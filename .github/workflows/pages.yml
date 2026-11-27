@@ -1,0 +1,74 @@
+name: Publish family site
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '19 * * * *'
+
+permissions: {}
+concurrency:
+  group: family-pages
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.source.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check Tom's publishing revision
+        id: source
+        env:
+          TOM_KEY: ${{ secrets.TOM_SITE_READ_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s\n' "$TOM_KEY" > "$RUNNER_TEMP/tom-key"
+          unset TOM_KEY
+          curl -fsS --retry 3 https://api.github.com/meta | jq -er '.ssh_keys[] | "github.com " + .' > "$RUNNER_TEMP/github-hosts"
+          export GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/tom-key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/github-hosts"
+          repo=git@github.com:brianschmidt/tom-site.git
+          revision=$(git ls-remote --exit-code "$repo" refs/heads/main | cut -f1)
+          version="$GITHUB_SHA $revision"
+          if [[ "$GITHUB_EVENT_NAME" == schedule ]] && [[ "$(curl -fsS --max-time 15 https://schmidtfam.co/tom/published-version.txt || true)" == "$version" ]]; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            git init -q "$RUNNER_TEMP/tom-source"
+            git -C "$RUNNER_TEMP/tom-source" fetch -q --depth 1 "$repo" "$revision"
+            git -C "$RUNNER_TEMP/tom-source" checkout -q --detach FETCH_HEAD
+            printf '%s\n' "$version" > "$RUNNER_TEMP/version"
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Assemble existing family pages and Tom's public files
+        if: steps.source.outputs.changed == 'true'
+        run: |
+          mkdir "$RUNNER_TEMP/site"
+          git archive HEAD -- . ':(exclude)tom' ':(exclude).github' | tar -x -C "$RUNNER_TEMP/site"
+          python3 .github/scripts/package_tom.py "$RUNNER_TEMP/tom-source" "$RUNNER_TEMP/site/tom"
+          cp "$RUNNER_TEMP/version" "$RUNNER_TEMP/site/tom/published-version.txt"
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.source.outputs.changed == 'true'
+        with:
+          path: ${{ runner.temp }}/site
+
+  deploy:
+    needs: package
+    if: needs.package.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy site
+        id: deploy
+        uses: actions/deploy-pages@v4
