@@ -32,7 +32,8 @@ jobs:
           umask 077
           printf '%s\n' "$TOM_KEY" > "$RUNNER_TEMP/tom-key"
           unset TOM_KEY
-          curl -fsS --retry 3 https://api.github.com/meta | jq -er '.ssh_keys[] | "github.com " + .' > "$RUNNER_TEMP/github-hosts"
+          # GitHub's published Ed25519 host key; update if GitHub announces a rotation.
+          echo 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > "$RUNNER_TEMP/github-hosts"
           export GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/tom-key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/github-hosts"
           repo=git@github.com:brianschmidt/tom-site.git
           revision=$(git ls-remote --exit-code "$repo" refs/heads/main | cut -f1)
